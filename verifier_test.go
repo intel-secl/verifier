@@ -24,6 +24,8 @@ func TestVerify(t *testing.T) {
 	vmReport, ok := report.(*VMTrustReport)
 	assert.True(t, ok)
 	assert.True(t, vmReport.Trusted)
+	assert.Len(t, vmReport.Results, 1)
+	assert.Equal(t, vmReport.Results[0].Rule.Name(), "EncryptionMatches")
 }
 
 func TestVerifyWithFault(t *testing.T) {

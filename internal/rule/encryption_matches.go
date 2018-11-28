@@ -5,13 +5,14 @@ import (
 	"intel/isecl/lib/common/pkg/vm"
 )
 
-// EncryptionMatches
+// EncryptionMatches is a rule that enforced VM image encryption policy from
 type EncryptionMatches struct {
 	RuleName string             `json:"rule_name"`
 	Markers  []string           `json:"markers"`
 	Expected ExpectedEncryption `json:"expected"`
 }
 
+// ExpectedEncryption is a data template that defines the json tag name of the encryption requirement, and the expected boolean value
 type ExpectedEncryption struct {
 	Name  string `json:"name"`
 	Value bool   `json:"Value"`
@@ -19,6 +20,7 @@ type ExpectedEncryption struct {
 
 const name = "EncryptionMatches"
 
+// NewEncryptionMatches constructs a new EncryptionMatches rule, with encryptionRequired set as true or false
 func NewEncryptionMatches(encryptionRequired bool) *EncryptionMatches {
 	return &EncryptionMatches{
 		name,
@@ -30,6 +32,7 @@ func NewEncryptionMatches(encryptionRequired bool) *EncryptionMatches {
 	}
 }
 
+// Name returns the name of the EncryptionMatches Rule.
 func (em *EncryptionMatches) Name() string {
 	return em.RuleName
 }
