@@ -1,4 +1,4 @@
-package rule
+package verifier
 
 import (
 	"errors"
@@ -20,8 +20,7 @@ type ExpectedEncryption struct {
 
 const name = "EncryptionMatches"
 
-// NewEncryptionMatches constructs a new EncryptionMatches rule, with encryptionRequired set as true or false
-func NewEncryptionMatches(encryptionRequired bool) *EncryptionMatches {
+func newEncryptionMatches(encryptionRequired bool) *EncryptionMatches {
 	return &EncryptionMatches{
 		name,
 		[]string{"IMAGE"},
@@ -37,7 +36,7 @@ func (em *EncryptionMatches) Name() string {
 	return em.RuleName
 }
 
-func (em *EncryptionMatches) Apply(manifest interface{}) (bool, []Fault) {
+func (em *EncryptionMatches) apply(manifest interface{}) (bool, []Fault) {
 	// assert manifest as VmManifest
 	if vmManifest, ok := manifest.(*vm.Manifest); ok {
 		// if rule expects encryption_required to be true
@@ -45,15 +44,12 @@ func (em *EncryptionMatches) Apply(manifest interface{}) (bool, []Fault) {
 			// then vmManifest image must be encrypted
 			if vmManifest.ImageEncrypted {
 				return true, nil
-			} else {
-				return false, []Fault{Fault{"encryption_required is \"true\" but VM Manifest.ImageEncrypted is \"false\"", nil}}
 			}
-		} else {
-			// encryption is not required, so ImageEncrypted can be anything
-			// Need validation with spec and team if this is the right behavior - David Zech 11/27/18
-			return true, nil
+			return false, []Fault{Fault{"encryption_required is \"true\" but VM Manifest.ImageEncrypted is \"false\"", nil}}
 		}
-	} else {
-		return false, []Fault{Fault{"invalid manifest type for rule", errors.New("failed to type assert manifest to *vm.Manifest")}}
+		// encryption is not required, so ImageEncrypted can be anything
+		// Need validation with spec and team if this is the right behavior - David Zech 11/27/18
+		return true, nil
 	}
+	return false, []Fault{Fault{"invalid manifest type for rule", errors.New("failed to type assert manifest to *vm.Manifest")}}
 }

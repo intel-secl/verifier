@@ -1,5 +1,6 @@
-package rule
+package verifier
 
+// Fault defines failure events when applying a Rule
 type Fault struct {
 	Description string
 	Cause       error
@@ -17,5 +18,6 @@ type Result struct {
 // Rule defines a trust rule to apply to a manifest.
 type Rule interface {
 	Name() string
-	Apply(actual interface{}) (bool, []Fault)
+	// apply is not exported publicly
+	apply(actual interface{}) (bool, []Fault)
 }
