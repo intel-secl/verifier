@@ -10,3 +10,5 @@ github.com/stretchr/testify v1.2.2 h1:bSDNvY7ZPG5RlJ8otE/7V6gMiyenm9RtJ7IUVIAoJ1
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 gitlab.devtools.intel.com/sst/isecl/lib/common v0.0.0-20181121191214-b6cb5d0ef496 h1:F149VFsZb87OxJQ3RQO6Fm1UO+KvRYNNcx0o5kK889U=
 gitlab.devtools.intel.com/sst/isecl/lib/common v0.0.0-20181121191214-b6cb5d0ef496/go.mod h1:QoBuIKg0Olk/c0420oq1X87FqNfzduAA38tFMqDRU+8=
+gitlab.devtools.intel.com/sst/isecl/lib/flavor v0.0.0-20181130040149-7faec88186a3 h1:x7j2tLDTH6KAEx+oF4T3F5gT6RVs9S7RDU2mLWNjwe8=
+gitlab.devtools.intel.com/sst/isecl/lib/flavor v0.0.0-20181130040149-7faec88186a3/go.mod h1:fCTEU9j0ghUk5WedUJokcVkjOym9WdeXhakwa+gH8u0=
