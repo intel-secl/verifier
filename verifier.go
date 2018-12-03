@@ -33,6 +33,7 @@ func VerifyVM(manifest *vm.Manifest, flavor *flvr.ImageFlavor) (*VMTrustReport, 
 	// just load the single rule
 	r := newEncryptionMatches(flavor.Image.Encryption.EncryptionRequired)
 	trust, faults := r.apply(manifest)
-	result := Result{Rule: r, FlavorID: flavor.Image.Meta.ID, Faults: faults}
-	return &VMTrustReport{*manifest, "Intel VM Policy", []Result{result}, trust}, nil
+	result := Result{Rule: r, FlavorID: flavor.Image.Meta.ID, Faults: faults, Trusted: trust}
+	// TrustReport is Trusted if all rule applications result in trust == true
+	return &VMTrustReport{*manifest, "Intel VM Policy", []Result{result}, result.Trusted}, nil
 }

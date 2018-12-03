@@ -13,6 +13,7 @@ type Result struct {
 	Rule     Rule
 	FlavorID string
 	Faults   []Fault
+	Trusted  bool
 }
 
 // Rule defines a trust rule to apply to a manifest.

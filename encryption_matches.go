@@ -36,6 +36,8 @@ func (em *EncryptionMatches) Name() string {
 	return em.RuleName
 }
 
+// apply returns a true if the rule application concludes the manifest is trusted
+// if it returns false, a list of Fault's are supplied explaining why.
 func (em *EncryptionMatches) apply(manifest interface{}) (bool, []Fault) {
 	// assert manifest as VmManifest
 	if vmManifest, ok := manifest.(*vm.Manifest); ok {

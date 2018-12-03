@@ -10,8 +10,7 @@ import (
 
 func TestVerify(t *testing.T) {
 	flavor, err := flavor.GetImageFlavor("Cirros-enc", true,
-		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer",
-		[]byte("0123456"), "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
+		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
 
 	assert.Nil(t, err)
 
@@ -30,8 +29,7 @@ func TestVerify(t *testing.T) {
 
 func TestVerifyWithFault(t *testing.T) {
 	flavor, err := flavor.GetImageFlavor("Cirros-enc", true,
-		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer",
-		[]byte("0123456"), "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
+		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
 
 	assert.Nil(t, err)
 
