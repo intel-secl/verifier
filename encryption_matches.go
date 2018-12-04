@@ -48,10 +48,12 @@ func (em *EncryptionMatches) apply(manifest interface{}) (bool, []Fault) {
 				return true, nil
 			}
 			return false, []Fault{Fault{"encryption_required is \"true\" but VM Manifest.ImageEncrypted is \"false\"", nil}}
+		} else {
+			if vmManifest.ImageEncrypted == false {
+				return true, nil
+			}
+			return false, []Fault{Fault{"encryption_required is \"false\" but VM Manifest.ImageEncrypted is \"true\"", nil}}
 		}
-		// encryption is not required, so ImageEncrypted can be anything
-		// Need validation with spec and team if this is the right behavior - David Zech 11/27/18
-		return true, nil
 	}
 	return false, []Fault{Fault{"invalid manifest type for rule", errors.New("failed to type assert manifest to *vm.Manifest")}}
 }

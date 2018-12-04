@@ -1,0 +1,19 @@
+image: golang:latest
+
+stages:
+  - build
+  - test
+
+test:
+  stage: test
+  tags:
+    - go
+  script:
+    - go test
+
+compile:
+  stage: build
+  tags:
+    - go
+  script:
+    - go build ./...
