@@ -1,5 +1,8 @@
 image: golang:latest
 
+before_script:
+  - cd $CI_PROJECT_DIR
+
 stages:
   - build
   - test
