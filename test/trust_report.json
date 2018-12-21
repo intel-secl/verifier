@@ -17,12 +17,12 @@
                 ],
                 "expected": {
                     "name": "encryption_required",
-                    "Value": true
+                    "value": true
                 }
             },
-            "FlavorID": "e7bf141d-df2f-4512-a29e-dc9f5be4fafc",
-            "Faults": null,
-            "Trusted": true
+            "flavor_id": "e7bf141d-df2f-4512-a29e-dc9f5be4fafc",
+            "faults": null,
+            "trusted": true
         }
     ],
     "trusted": true

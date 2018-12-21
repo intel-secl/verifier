@@ -1,5 +1,10 @@
 package verifier
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 // Fault defines failure events when applying a Rule
 type Fault struct {
 	Description string `json:"description"`
@@ -14,6 +19,43 @@ type Result struct {
 	FlavorID string  `json:"flavor_id"`
 	Faults   []Fault `json:"faults,omitempty"`
 	Trusted  bool    `json:"trusted"`
+}
+
+// UnmarshalJSON makes Result Implement the JSON unmarshalling interface
+func (r Result) UnmarshalJSON(data []byte) error {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	var rawRule map[string]json.RawMessage
+	if err := json.Unmarshal(raw["rule"], &rawRule); err != nil {
+		return err
+	}
+	var ruleName string
+	if err := json.Unmarshal(rawRule["rule_name"], &ruleName); err != nil {
+		return err
+	}
+	switch ruleName {
+	case EncryptionMatchesName:
+		var ie EncryptionMatches
+		if err := json.Unmarshal(raw["rule"], &ie); err != nil {
+			return err
+		}
+		r.Rule = &ie
+	default:
+		return fmt.Errorf("json: cannot unmarshal rule with unrecognized name %s", ruleName)
+	}
+
+	// unmarshal everything else
+	if err := json.Unmarshal(raw["flavor_id"], &r.FlavorID); err != nil {
+		return err
+	}
+	// faults is optional
+	json.Unmarshal(raw["faults"], &r.Faults)
+	if err := json.Unmarshal(raw["trusted"], &r.Trusted); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Rule defines a trust rule to apply to a manifest.

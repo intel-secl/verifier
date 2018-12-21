@@ -18,11 +18,11 @@ type ExpectedEncryption struct {
 	Value bool   `json:"Value"`
 }
 
-const name = "EncryptionMatches"
+const EncryptionMatchesName = "EncryptionMatches"
 
 func newEncryptionMatches(encryptionRequired bool) *EncryptionMatches {
 	return &EncryptionMatches{
-		name,
+		EncryptionMatchesName,
 		[]string{"IMAGE"},
 		ExpectedEncryption{
 			"encryption_required",
