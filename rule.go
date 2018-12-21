@@ -22,7 +22,7 @@ type Result struct {
 }
 
 // UnmarshalJSON makes Result Implement the JSON unmarshalling interface
-func (r Result) UnmarshalJSON(data []byte) error {
+func (r *Result) UnmarshalJSON(data []byte) error {
 	var raw map[string]json.RawMessage
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err

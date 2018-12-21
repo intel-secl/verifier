@@ -31,10 +31,11 @@ func TestJSON(t *testing.T) {
 	manifest := vm.Manifest{VmInfo: vm.Info{VmID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: true}
 	report, err := Verify(&manifest, flavor)
 	reportJSON, _ := json.Marshal(report)
-
+	t.Log(string(reportJSON))
 	var r VMTrustReport
 	err = json.Unmarshal(reportJSON, &r)
 	assert.NoError(t, err)
+	assert.True(t, r.Results[0].Trusted)
 }
 
 func TestVerifyWithFault(t *testing.T) {
