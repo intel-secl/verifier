@@ -15,7 +15,7 @@ type EncryptionMatches struct {
 // ExpectedEncryption is a data template that defines the json tag name of the encryption requirement, and the expected boolean value
 type ExpectedEncryption struct {
 	Name  string `json:"name"`
-	Value bool   `json:"Value"`
+	Value bool   `json:"value"`
 }
 
 const EncryptionMatchesName = "EncryptionMatches"
