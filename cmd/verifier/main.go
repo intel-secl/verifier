@@ -8,7 +8,9 @@ import (
 	"intel/isecl/lib/verifier"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"os"
+	"regexp"
 )
 
 func printUsage() {
@@ -36,6 +38,31 @@ func verify(manifestPath string, flavorPath string) {
 	err = json.Unmarshal(flavorData, &flv)
 	if err != nil {
 		log.Fatalf("Could not unmarshal jsonfile %s\n", flavorPath)
+	}
+	//input validation for manifest
+	if !isValidUUID(manifest.VmInfo.VmID) {
+		log.Fatal("Invalid input : VmID must be a valid UUID.")
+	}
+	if !isValidUUID(manifest.VmInfo.HostHardwareUUID) {
+		log.Fatal("Invalid input : HostHardwareUUID must be a valid UUID.")
+	}
+	if !isValidUUID(manifest.VmInfo.ImageID) {
+		log.Fatal("Invalid input : ImageID must be a valid UUID.")
+	}
+
+	//input validation for flavor
+	if !isValidUUID(flv.Image.Meta.ID) {
+		log.Fatal("Invalid input : FlavorID must be a valid UUID.")
+	}
+	if !isValidFlavorPart(flv.Image.Meta.Description.FlavorPart) {
+		log.Fatal("Invalid input :flavor part must be OS , BIOS, ASSET_TAG, SOFTWARE")
+	}
+	_, err = url.ParseRequestURI(flv.Image.Encryption.KeyURL)
+	if err != nil {
+		log.Fatal("Invalid input : keyURL")
+	}
+	if !isValidDigest(flv.Image.Encryption.Digest) {
+		log.Fatal("Invalid input : digest must be a hexadecimal value and 64 characters in length.")
 	}
 
 	trustreport, err := verifier.Verify(&manifest, &flv)
@@ -67,4 +94,27 @@ func main() {
 	default:
 		printUsage()
 	}
+}
+
+//isValidDigest method checks if the digest value is hexadecimal and 64 characters in length
+func isValidDigest(value string) bool {
+	r := regexp.MustCompile("^[a-fA-F0-9]{64}$")
+	return r.MatchString(value)
+}
+
+//isValidUUID method checks if the UUID is valid
+func isValidUUID(uuid string) bool {
+	r := regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
+	return r.MatchString(uuid)
+}
+
+//isValidFlavorPart method checks if the flavor part is of type OS , BIOS , COMBINED, ASSET_TAG, HOST_UNIQUE
+func isValidFlavorPart(flavor string) bool {
+	flavorPart := [...]string{"OS", "BIOS", "ASSET_TAG", "HOST_UNIQUE", "SOFTWARE"}
+	for _, a := range flavorPart {
+		if a == flavor {
+			return true
+		}
+	}
+	return false
 }
