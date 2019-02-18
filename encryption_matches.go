@@ -2,10 +2,11 @@ package verifier
 
 import (
 	"errors"
+	"intel/isecl/lib/common/pkg/container"
 	"intel/isecl/lib/common/pkg/vm"
 )
 
-// EncryptionMatches is a rule that enforced VM image encryption policy from
+// EncryptionMatches is a rule that enforces image encryption policy
 type EncryptionMatches struct {
 	RuleName string             `json:"rule_name"`
 	Markers  []string           `json:"markers"`
@@ -20,10 +21,10 @@ type ExpectedEncryption struct {
 
 const EncryptionMatchesName = "EncryptionMatches"
 
-func newEncryptionMatches(encryptionRequired bool) *EncryptionMatches {
+func newEncryptionMatches(imageType string, encryptionRequired bool) *EncryptionMatches {
 	return &EncryptionMatches{
 		EncryptionMatchesName,
-		[]string{"IMAGE"},
+		[]string{imageType},
 		ExpectedEncryption{
 			"encryption_required",
 			encryptionRequired,
@@ -54,6 +55,20 @@ func (em *EncryptionMatches) apply(manifest interface{}) (bool, []Fault) {
 			}
 			return false, []Fault{Fault{"encryption_required is \"false\" but VM Manifest.ImageEncrypted is \"true\"", nil}}
 		}
+	} else if containerManifest, ok := manifest.(*container.Manifest); ok {
+		// if rule expects encryption_required to be true
+		if em.Expected.Value == true {
+			// then vmManifest image must be encrypted
+			if containerManifest.ImageEncrypted {
+				return true, nil
+			}
+			return false, []Fault{Fault{"encryption_required is \"true\" but Container Manifest.ImageEncrypted is \"false\"", nil}}
+		} else {
+			if containerManifest.ImageEncrypted == false {
+				return true, nil
+			}
+			return false, []Fault{Fault{"encryption_required is \"false\" but Container Manifest.ImageEncrypted is \"true\"", nil}}
+		}
 	}
-	return false, []Fault{Fault{"invalid manifest type for rule", errors.New("failed to type assert manifest to *vm.Manifest")}}
+	return false, []Fault{Fault{"invalid manifest type for rule", errors.New("failed to type assert manifest to *vm.Manifest/container.Manifest")}}
 }
