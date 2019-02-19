@@ -2,8 +2,7 @@ package verifier
 
 import (
 	"errors"
-	"intel/isecl/lib/common/pkg/container"
-	"intel/isecl/lib/common/pkg/vm"
+	"intel/isecl/lib/common/pkg/image"
 )
 
 // EncryptionMatches is a rule that enforces image encryption policy
@@ -41,34 +40,20 @@ func (em *EncryptionMatches) Name() string {
 // if it returns false, a list of Fault's are supplied explaining why.
 func (em *EncryptionMatches) apply(manifest interface{}) (bool, []Fault) {
 	// assert manifest as VmManifest
-	if vmManifest, ok := manifest.(*vm.Manifest); ok {
+	if manifest, ok := manifest.(*image.Manifest); ok {
 		// if rule expects encryption_required to be true
 		if em.Expected.Value == true {
 			// then vmManifest image must be encrypted
-			if vmManifest.ImageEncrypted {
+			if manifest.ImageEncrypted {
 				return true, nil
 			}
-			return false, []Fault{Fault{"encryption_required is \"true\" but VM Manifest.ImageEncrypted is \"false\"", nil}}
+			return false, []Fault{Fault{"encryption_required is \"true\" but Manifest.ImageEncrypted is \"false\"", nil}}
 		} else {
-			if vmManifest.ImageEncrypted == false {
+			if manifest.ImageEncrypted == false {
 				return true, nil
 			}
-			return false, []Fault{Fault{"encryption_required is \"false\" but VM Manifest.ImageEncrypted is \"true\"", nil}}
-		}
-	} else if containerManifest, ok := manifest.(*container.Manifest); ok {
-		// if rule expects encryption_required to be true
-		if em.Expected.Value == true {
-			// then vmManifest image must be encrypted
-			if containerManifest.ImageEncrypted {
-				return true, nil
-			}
-			return false, []Fault{Fault{"encryption_required is \"true\" but Container Manifest.ImageEncrypted is \"false\"", nil}}
-		} else {
-			if containerManifest.ImageEncrypted == false {
-				return true, nil
-			}
-			return false, []Fault{Fault{"encryption_required is \"false\" but Container Manifest.ImageEncrypted is \"true\"", nil}}
+			return false, []Fault{Fault{"encryption_required is \"false\" but Manifest.ImageEncrypted is \"true\"", nil}}
 		}
 	}
-	return false, []Fault{Fault{"invalid manifest type for rule", errors.New("failed to type assert manifest to *vm.Manifest/container.Manifest")}}
+	return false, []Fault{Fault{"invalid manifest type for rule", errors.New("failed to type assert manifest to *image.Manifest")}}
 }

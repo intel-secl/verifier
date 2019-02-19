@@ -2,7 +2,7 @@ package verifier
 
 import (
 	"errors"
-	"intel/isecl/lib/common/pkg/container"
+	"intel/isecl/lib/common/pkg/image"
 )
 
 // IntegrityMatches is a rule that enforces container image encryption and integrity policy from
@@ -40,16 +40,16 @@ func (em *IntegrityMatches) Name() string {
 // if it returns false, a list of Fault's are supplied explaining why.
 func (em *IntegrityMatches) apply(manifest interface{}) (bool, []Fault) {
 	// assert manifest as VmManifest
-	if Manifest, ok := manifest.(*container.Manifest); ok {
+	if manifest, ok := manifest.(*image.Manifest); ok {
 		// if rule expects encryption_required to be true
 		if em.IntegrityEnforced.Value == true {
 			// then vmManifest image must be encrypted
-			if Manifest.ImageIntegrityEnforced {
+			if manifest.ImageIntegrityEnforced {
 				return true, nil
 			}
 			return false, []Fault{Fault{"integrity_enforced is \"true\" but Manifest.ImageIntegrityEnforced is \"false\"", nil}}
 		} else {
-			if Manifest.ImageIntegrityEnforced == false {
+			if manifest.ImageIntegrityEnforced == false {
 				return true, nil
 			}
 			return false, []Fault{Fault{"integrity_enforced is \"false\" but Manifest.ImageIntegrityEnforced is \"true\"", nil}}
