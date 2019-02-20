@@ -37,7 +37,7 @@ func Verify(manifest interface{}, flavor interface{}) (interface{}, error) {
 // VerifyVM explicity verifies a VM Manifest against a VM ImageFlavor, and returns a VMTrustReport
 func VerifyVM(manifest *image.Manifest, flavor *flvr.ImageFlavor) (*ImageTrustReport, error) {
 	// just load the single rule
-	r := newEncryptionMatches("IMAGE", flavor.Image.Encryption.EncryptionRequired)
+	r := newEncryptionMatches("IMAGE", flavor.Image.EncryptionRequired)
 	trust, faults := r.apply(manifest)
 	result := Result{Rule: r, FlavorID: flavor.Image.Meta.ID, Faults: faults, Trusted: trust}
 	// TrustReport is Trusted if all rule applications result in trust == true
@@ -48,7 +48,7 @@ func VerifyVM(manifest *image.Manifest, flavor *flvr.ImageFlavor) (*ImageTrustRe
 func VerifyContainer(manifest *image.Manifest, flavor *flvr.ImageFlavor) (*ImageTrustReport, error) {
 	var result []Result
 	// just load the single rule
-	encryptionRule := newEncryptionMatches("CONTAINER_IMAGE", flavor.Image.Encryption.EncryptionRequired)
+	encryptionRule := newEncryptionMatches("CONTAINER_IMAGE", flavor.Image.EncryptionRequired)
 	trust, faults := encryptionRule.apply(manifest)
 	result = append(result, Result{Rule: encryptionRule, FlavorID: flavor.Image.Meta.ID, Faults: faults, Trusted: trust})
 	// just load the single rule
