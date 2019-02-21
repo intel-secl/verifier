@@ -52,7 +52,7 @@ func VerifyContainer(manifest *image.Manifest, flavor *flvr.ImageFlavor) (*Image
 	trust, faults := encryptionRule.apply(manifest)
 	result = append(result, Result{Rule: encryptionRule, FlavorID: flavor.Image.Meta.ID, Faults: faults, Trusted: trust})
 	// just load the single rule
-	integrityRule := newIntegrityMatches("CONTAINER_IMAGE", flavor.Image.Integrity.IntegrityEnforced)
+	integrityRule := newIntegrityMatches("CONTAINER_IMAGE", flavor.Image.IntegrityEnforced)
 	trust, faults = integrityRule.apply(manifest)
 	result = append(result, Result{Rule: integrityRule, FlavorID: flavor.Image.Meta.ID, Faults: faults, Trusted: trust})
 	//get consolidated trust status
