@@ -28,7 +28,7 @@ func Verify(manifest interface{}, flavor interface{}) (interface{}, error) {
 		if flavorPart == "CONTAINER_IMAGE" && ok {
 			return VerifyContainer(manifest, flavor)
 		}
-		return nil, errors.New("supplied manifest is not a VMManifest")
+		return nil, errors.New("supplied manifest is not an image Manifest")
 	default:
 		return nil, errors.New("unrecognized flavor type")
 	}
