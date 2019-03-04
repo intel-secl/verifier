@@ -5,14 +5,14 @@ import (
 	"intel/isecl/lib/common/pkg/image"
 )
 
-// IntegrityMatches is a rule that enforces container image encryption and integrity policy from
+// IntegrityMatches is a rule that enforces container integrity policy
 type IntegrityMatches struct {
 	RuleName          string            `json:"rule_name"`
 	Markers           []string          `json:"markers"`
-	IntegrityEnforced ExpectedIntegrity `json:"enforced"`
+	IntegrityEnforced ExpectedIntegrity `json:"expected"`
 }
 
-// ExpectedEncryption is a data template that defines the json tag name of the encryption requirement, and the expected boolean value
+// ExpectedIntegrity is a data template that defines the json tag name of the integrity requirement, and the expected boolean value
 type ExpectedIntegrity struct {
 	Name  string `json:"name"`
 	Value bool   `json:"value"`
@@ -31,7 +31,7 @@ func newIntegrityMatches(imageType string, integrityEnforced bool) *IntegrityMat
 	}
 }
 
-// Name returns the name of the EncryptionMatches Rule.
+// Name returns the name of the IntegrityMatches Rule.
 func (em *IntegrityMatches) Name() string {
 	return em.RuleName
 }
@@ -39,11 +39,11 @@ func (em *IntegrityMatches) Name() string {
 // apply returns a true if the rule application concludes the manifest is trusted
 // if it returns false, a list of Fault's are supplied explaining why.
 func (em *IntegrityMatches) apply(manifest interface{}) (bool, []Fault) {
-	// assert manifest as VmManifest
+	// assert manifest as ImageManifest
 	if manifest, ok := manifest.(*image.Manifest); ok {
-		// if rule expects encryption_required to be true
+		// if rule expects integrity_enforced to be true
 		if em.IntegrityEnforced.Value == true {
-			// then vmManifest image must be encrypted
+			// then imageManifest image must be encrypted
 			if manifest.ImageIntegrityEnforced {
 				return true, nil
 			}

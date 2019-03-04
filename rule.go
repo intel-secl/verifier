@@ -42,6 +42,12 @@ func (r *Result) UnmarshalJSON(data []byte) error {
 			return err
 		}
 		r.Rule = &ie
+	case IntegrityMatchesName:
+		var ie IntegrityMatches
+		if err := json.Unmarshal(raw["rule"], &ie); err != nil {
+			return err
+		}
+		r.Rule = &ie
 	default:
 		return fmt.Errorf("json: cannot unmarshal rule with unrecognized name %s", ruleName)
 	}
