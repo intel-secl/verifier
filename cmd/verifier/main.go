@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"intel/isecl/lib/common/pkg/vm"
+	"intel/isecl/lib/common/pkg/image"
 	"intel/isecl/lib/flavor"
 	"intel/isecl/lib/verifier"
 	"io/ioutil"
@@ -24,7 +24,7 @@ func verify(manifestPath string, flavorPath string) {
 	if err != nil {
 		log.Fatalf("Could not read file %s\n", manifestPath)
 	}
-	var manifest vm.Manifest
+	var manifest image.Manifest
 	err = json.Unmarshal(manifestData, &manifest)
 	if err != nil {
 		log.Fatalf("Could not unmarshal json file %s\n", manifestPath)
@@ -40,13 +40,13 @@ func verify(manifestPath string, flavorPath string) {
 		log.Fatalf("Could not unmarshal jsonfile %s\n", flavorPath)
 	}
 	//input validation for manifest
-	if !isValidUUID(manifest.VmInfo.VmID) {
+	if !isValidUUID(manifest.ImageInfo.InstanceID) {
 		log.Fatal("Invalid input : VmID must be a valid UUID.")
 	}
-	if !isValidUUID(manifest.VmInfo.HostHardwareUUID) {
+	if !isValidUUID(manifest.ImageInfo.HostHardwareUUID) {
 		log.Fatal("Invalid input : HostHardwareUUID must be a valid UUID.")
 	}
-	if !isValidUUID(manifest.VmInfo.ImageID) {
+	if !isValidUUID(manifest.ImageInfo.ImageID) {
 		log.Fatal("Invalid input : ImageID must be a valid UUID.")
 	}
 
