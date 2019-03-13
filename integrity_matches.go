@@ -2,7 +2,7 @@ package verifier
 
 import (
 	"errors"
-	"intel/isecl/lib/common/pkg/image"
+	"intel/isecl/lib/common/pkg/instance"
 )
 
 // IntegrityMatches is a rule that enforces container integrity policy
@@ -39,17 +39,17 @@ func (em *IntegrityMatches) Name() string {
 // apply returns a true if the rule application concludes the manifest is trusted
 // if it returns false, a list of Fault's are supplied explaining why.
 func (em *IntegrityMatches) apply(manifest interface{}) (bool, []Fault) {
-	// assert manifest as ImageManifest
-	if manifest, ok := manifest.(*image.Manifest); ok {
+	// assert manifest as InstanceManifest
+	if manifest, ok := manifest.(*instance.Manifest); ok {
 		// if rule expects integrity_enforced to be true
-		if em.IntegrityEnforced.Value == true {
-			// then imageManifest image must be encrypted
+		if em.IntegrityEnforced.Value {
+			// then instanceManifest image must be encrypted
 			if manifest.ImageIntegrityEnforced {
 				return true, nil
 			}
 			return false, []Fault{Fault{"integrity_enforced is \"true\" but Manifest.ImageIntegrityEnforced is \"false\"", nil}}
 		} else {
-			if manifest.ImageIntegrityEnforced == false {
+			if !manifest.ImageIntegrityEnforced {
 				return true, nil
 			}
 			return false, []Fault{Fault{"integrity_enforced is \"false\" but Manifest.ImageIntegrityEnforced is \"true\"", nil}}

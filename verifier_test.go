@@ -3,7 +3,7 @@ package verifier
 import (
 	"encoding/json"
 	//"fmt"
-	"intel/isecl/lib/common/pkg/image"
+	"intel/isecl/lib/common/pkg/instance"
 	"intel/isecl/lib/flavor"
 	"testing"
 
@@ -14,11 +14,11 @@ func TestVerify(t *testing.T) {
 	flavor, err := flavor.GetImageFlavor("Cirros-enc", true,
 		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
 	assert.NoError(t, err)
-	manifest := image.Manifest{ImageInfo: image.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: true}
+	manifest := instance.Manifest{InstanceInfo: instance.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: true}
 	report, err := Verify(&manifest, flavor)
 	assert.NoError(t, err)
 	assert.NotNil(t, report)
-	trustReport, ok := report.(*ImageTrustReport)
+	trustReport, ok := report.(*InstanceTrustReport)
 	//reportJSON, _ := json.Marshal(trustReport)
 	//fmt.Println(string(reportJSON))
 	assert.True(t, ok)
@@ -31,11 +31,11 @@ func TestJSON(t *testing.T) {
 	flavor, err := flavor.GetImageFlavor("Cirros-enc", true,
 		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
 	assert.NoError(t, err)
-	manifest := image.Manifest{ImageInfo: image.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: true}
+	manifest := instance.Manifest{InstanceInfo: instance.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: true}
 	report, err := Verify(&manifest, flavor)
 	reportJSON, _ := json.Marshal(report)
 	t.Log(string(reportJSON))
-	var r ImageTrustReport
+	var r InstanceTrustReport
 	err = json.Unmarshal(reportJSON, &r)
 	assert.NoError(t, err)
 	assert.True(t, r.Results[0].Trusted)
@@ -46,11 +46,11 @@ func TestVerifyWithFault(t *testing.T) {
 		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
 
 	assert.NoError(t, err)
-	manifest := image.Manifest{ImageInfo: image.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: false}
+	manifest := instance.Manifest{InstanceInfo: instance.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: false}
 	report, err := Verify(&manifest, flavor)
 	assert.NoError(t, err)
 	assert.NotNil(t, report)
-	trustReport, ok := report.(*ImageTrustReport)
+	trustReport, ok := report.(*InstanceTrustReport)
 	assert.True(t, ok)
 	assert.False(t, trustReport.Trusted)
 }
@@ -60,12 +60,12 @@ func TestVerifyWithConverseFault(t *testing.T) {
 		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
 
 	assert.NoError(t, err)
-	manifest := image.Manifest{ImageInfo: image.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: true}
+	manifest := instance.Manifest{InstanceInfo: instance.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: true}
 	report, err := Verify(&manifest, flavor)
 	assert.NoError(t, err)
 	assert.NotNil(t, report)
 
-	trustReport, ok := report.(*ImageTrustReport)
+	trustReport, ok := report.(*InstanceTrustReport)
 	assert.True(t, ok)
 	assert.False(t, trustReport.Trusted)
 }

@@ -2,7 +2,7 @@ package verifier
 
 import (
 	"errors"
-	"intel/isecl/lib/common/pkg/image"
+	"intel/isecl/lib/common/pkg/instance"
 )
 
 // EncryptionMatches is a rule that enforces image encryption policy
@@ -40,7 +40,7 @@ func (em *EncryptionMatches) Name() string {
 // if it returns false, a list of Fault's are supplied explaining why.
 func (em *EncryptionMatches) apply(manifest interface{}) (bool, []Fault) {
 	// assert manifest as VmManifest
-	if manifest, ok := manifest.(*image.Manifest); ok {
+	if manifest, ok := manifest.(*instance.Manifest); ok {
 		// if rule expects encryption_required to be true
 		if em.Expected.Value == true {
 			// then vmManifest image must be encrypted
@@ -55,5 +55,5 @@ func (em *EncryptionMatches) apply(manifest interface{}) (bool, []Fault) {
 			return false, []Fault{Fault{"encryption_required is \"false\" but Manifest.ImageEncrypted is \"true\"", nil}}
 		}
 	}
-	return false, []Fault{Fault{"invalid manifest type for rule", errors.New("failed to type assert manifest to *image.Manifest")}}
+	return false, []Fault{Fault{"invalid manifest type for rule", errors.New("failed to type assert manifest to *instance.Manifest")}}
 }
