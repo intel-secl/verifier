@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"intel/isecl/lib/common/pkg/instance"
+	"intel/isecl/lib/common/validation"
 	"intel/isecl/lib/flavor"
 	"intel/isecl/lib/verifier"
 	"io/ioutil"
-	"log"
 	"net/url"
 	"os"
 	"regexp"
@@ -20,61 +20,88 @@ func printUsage() {
 }
 
 func verify(manifestPath string, flavorPath string) {
+
+	inputArr := []string{manifestPath, flavorPath}
+	if validateInputErr := validation.ValidateStrings(inputArr); validateInputErr != nil {
+		fmt.Println("Invalid string format")
+		os.Exit(1)
+	}
+
 	manifestData, err := ioutil.ReadFile(manifestPath)
 	if err != nil {
-		log.Fatalf("Could not read file %s\n", manifestPath)
+		fmt.Printf("Could not read file %s\n", manifestPath)
+		os.Exit(1)
 	}
 	var manifest instance.Manifest
 	err = json.Unmarshal(manifestData, &manifest)
 	if err != nil {
-		log.Fatalf("Could not unmarshal json file %s\n", manifestPath)
+		fmt.Printf("Could not unmarshal json file %s\n", manifestPath)
+		os.Exit(1)
 	}
 
 	flavorData, err := ioutil.ReadFile(flavorPath)
 	if err != nil {
-		log.Fatalf("Could not read file %s\n", flavorPath)
+		fmt.Printf("Could not read file %s\n", flavorPath)
+		os.Exit(1)
 	}
 	var flv flavor.ImageFlavor
 	err = json.Unmarshal(flavorData, &flv)
 	if err != nil {
-		log.Fatalf("Could not unmarshal jsonfile %s\n", flavorPath)
+		fmt.Printf("Could not unmarshal jsonfile %s\n", flavorPath)
+		os.Exit(1)
 	}
 	//input validation for manifest
-	if !isValidUUID(manifest.InstanceInfo.InstanceID) {
-		log.Fatal("Invalid input : VmID must be a valid UUID.")
+	if err = validation.ValidateUUIDv4(manifest.InstanceInfo.InstanceID); err != nil {
+		fmt.Println("Invalid input : VmID must be a valid UUID")
+		os.Exit(1)
 	}
-	if !isValidUUID(manifest.InstanceInfo.HostHardwareUUID) {
-		log.Fatal("Invalid input : HostHardwareUUID must be a valid UUID.")
+
+	if err = validation.ValidateHardwareUUID(manifest.InstanceInfo.HostHardwareUUID); err != nil {
+		fmt.Println("Invalid input : Host hardware UUID must be valid")
+		os.Exit(1)
 	}
-	if !isValidUUID(manifest.InstanceInfo.ImageID) {
-		log.Fatal("Invalid input : ImageID must be a valid UUID.")
+
+	if err = validation.ValidateUUIDv4(manifest.InstanceInfo.InstanceID); err != nil {
+		fmt.Println("Invalid input : ImageID must be a valid UUID")
+		os.Exit(1)
 	}
 
 	//input validation for flavor
-	if !isValidUUID(flv.Image.Meta.ID) {
-		log.Fatal("Invalid input : FlavorID must be a valid UUID.")
+	if err = validation.ValidateUUIDv4(flv.Image.Meta.ID); err != nil {
+		fmt.Println("Invalid input : FlavorID must be a valid UUID")
+		os.Exit(1)
 	}
+
 	if !isValidFlavorPart(flv.Image.Meta.Description.FlavorPart) {
-		log.Fatal("Invalid input :flavor part must be OS , BIOS, ASSET_TAG, SOFTWARE")
+		fmt.Println("Invalid input :flavor part must be IMAGE or CONTAINER_IMAGE")
+		os.Exit(1)
 	}
-	_, err = url.ParseRequestURI(flv.Image.Encryption.KeyURL)
-	if err != nil {
-		log.Fatal("Invalid input : keyURL")
+
+	uriValue, _ := url.Parse(flv.Image.Encryption.KeyURL)
+	protocol := make(map[string]byte)
+	protocol["https"] = 0
+	if validateURLErr := validation.ValidateURL(flv.Image.Encryption.KeyURL, protocol, uriValue.RequestURI()); validateURLErr != nil {
+		fmt.Printf("Invalid key URL format: %s\n", validateURLErr.Error())
+		os.Exit(1)
 	}
-	if !isValidDigest(flv.Image.Encryption.Digest) {
-		log.Fatal("Invalid input : digest must be a hexadecimal value and 64 characters in length.")
+
+	if validateDigestErr := validation.ValidateBase64String(flv.Image.Encryption.Digest); validateDigestErr != nil {
+		fmt.Printf("Invalid digest: %s\n", validateDigestErr.Error())
+		os.Exit(1)
 	}
 
 	trustreport, err := verifier.Verify(&manifest, &flv)
 	if err != nil {
-		log.Fatal("Flavor verification encountered a runtime error", err)
+		fmt.Printf("Flavor verification encountered a runtime error: %s", err.Error())
+		os.Exit(1)
 	}
 
 	trustreportJSON, err := json.MarshalIndent(trustreport, "", "    ")
 	if err != nil {
-		log.Fatal("Failed to marshal trustreport to json")
+		fmt.Println("Failed to marshal trustreport to json")
+		os.Exit(1)
 	}
-	log.Println(string(trustreportJSON))
+	fmt.Println(string(trustreportJSON))
 }
 
 func main() {
@@ -102,15 +129,9 @@ func isValidDigest(value string) bool {
 	return r.MatchString(value)
 }
 
-//isValidUUID method checks if the UUID is valid
-func isValidUUID(uuid string) bool {
-	r := regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
-	return r.MatchString(uuid)
-}
-
 //isValidFlavorPart method checks if the flavor part is of type OS , BIOS , COMBINED, ASSET_TAG, HOST_UNIQUE
 func isValidFlavorPart(flavor string) bool {
-	flavorPart := [...]string{"OS", "BIOS", "ASSET_TAG", "HOST_UNIQUE", "SOFTWARE"}
+	flavorPart := [...]string{"IMAGE", "CONTAINER_IMAGE"}
 	for _, a := range flavorPart {
 		if a == flavor {
 			return true
