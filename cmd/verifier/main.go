@@ -104,6 +104,12 @@ func verify(manifestPath string, flavorPath string, flavorCertPath string) {
 }
 
 func main() {
+	inputValArr := []string{os.Args[0], os.Args[1]}
+	if valErr := validation.ValidateStrings(inputValArr); valErr != nil {
+		fmt.Println("Invalid string format")
+		os.Exit(1)
+	}
+
 	args := os.Args[1:]
 	if len(args) <= 0 {
 		printUsage()
