@@ -15,12 +15,11 @@ import (
 
 func printUsage() {
 	fmt.Println(os.Args[0], "[options]")
-	fmt.Println("Verify <manifest.json> <flavor.json>")
+	fmt.Println("Verify <manifest.json> <flavor.json> <flavor Certificate Path>")
 	fmt.Println("\tOutput: <Trust Report Json>")
 }
 
-func verify(manifestPath string, flavorPath string) {
-
+func verify(manifestPath string, flavorPath string, flavorCertPath string) {
 	inputArr := []string{manifestPath, flavorPath}
 	if validateInputErr := validation.ValidateStrings(inputArr); validateInputErr != nil {
 		fmt.Println("Invalid string format")
@@ -90,7 +89,7 @@ func verify(manifestPath string, flavorPath string) {
 		os.Exit(1)
 	}
 
-	trustreport, err := verifier.Verify(&manifest, &flv)
+	trustreport, err := verifier.Verify(&manifest, &flv, flavorCertPath)
 	if err != nil {
 		fmt.Printf("Flavor verification encountered a runtime error: %s", err.Error())
 		os.Exit(1)
@@ -113,10 +112,10 @@ func main() {
 	switch cmd := args[0]; cmd {
 	case "Verify":
 		param := args[1:]
-		if len(param) != 2 {
+		if len(param) != 3 {
 			printUsage()
 		} else {
-			verify(param[0], param[1])
+			verify(param[0], param[1], param[2])
 		}
 	default:
 		printUsage()
