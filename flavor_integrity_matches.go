@@ -1,7 +1,7 @@
 package verifier
 
 import (
-	flavorUtil "intel/isecl/lib/flavor/util"
+	flvr "intel/isecl/lib/flavor"
 	verifierUtil "intel/isecl/lib/verifier/util"
 )
 
@@ -19,6 +19,7 @@ type ExpectedFlavorIntegrity struct {
 	Value bool   `json:"value"`
 }
 
+//FlavorIntegrityMatchesName contains the name of the rule for flavor signature verification
 const FlavorIntegrityMatchesName = "FlavorIntegrityMatches"
 
 func newFlavorIntegrityMatches(flavorCertPath string) *FlavorIntegrityMatches {
@@ -40,7 +41,7 @@ func (em *FlavorIntegrityMatches) Name() string {
 
 func (em *FlavorIntegrityMatches) apply(flavor interface{}) (bool, []Fault) {
 	// verify if flavor is trusted
-	flavorTrusted := verifierUtil.VerifyFlavorIntegrity(flavor.(flavorUtil.SignedImageFlavor), em.FlavorCertPath)
+	flavorTrusted := verifierUtil.VerifyFlavorIntegrity(flavor.(flvr.SignedImageFlavor), em.FlavorCertPath)
 
 	// if rule expects integrity_enforced to be true
 	if flavorTrusted {

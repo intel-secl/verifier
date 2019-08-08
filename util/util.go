@@ -11,13 +11,12 @@ import (
 	"io/ioutil"
 
 	flvr "intel/isecl/lib/flavor"
-	flavorUtil "intel/isecl/lib/flavor/util"
 
 	log "github.com/sirupsen/logrus"
 )
 
 //VerifyFlavorIntegrity is used to verify the integrity of the flavor
-func VerifyFlavorIntegrity(flavor flavorUtil.SignedImageFlavor, certificateFilePath string) bool {
+func VerifyFlavorIntegrity(flavor flvr.SignedImageFlavor, certificateFilePath string) bool {
 
 	var imageFlavor flvr.ImageFlavor
 	if certificateFilePath == "" {
@@ -57,7 +56,7 @@ func VerifyFlavorIntegrity(flavor flavorUtil.SignedImageFlavor, certificateFileP
 
 	err = rsa.VerifyPKCS1v15(rsaPublicKey, crypto.SHA384, digest, signatureBytes)
 	if err != nil {
-		log.Errorf("Could not verify flavor: `%s` (digest: `%v`)", err, digest)
+		log.Errorf("Could not verify flavor: `%s`", err)
 		return false
 	}
 

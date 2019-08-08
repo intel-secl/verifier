@@ -49,7 +49,7 @@ func (r *Result) UnmarshalJSON(data []byte) error {
 		}
 		r.Rule = &ie
 	case FlavorIntegrityMatchesName:
-		var ie IntegrityMatches
+		var ie FlavorIntegrityMatches
 		if err := json.Unmarshal(raw["rule"], &ie); err != nil {
 			return err
 		}
