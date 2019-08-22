@@ -4,6 +4,8 @@ import (
 	"errors"
 	"intel/isecl/lib/common/pkg/instance"
 	flvr "intel/isecl/lib/flavor"
+	"intel/isecl/lib/common/validation"
+	"net/url"
 )
 
 // Verify verifies a manifest against a flavor.
@@ -17,18 +19,59 @@ import (
 // - *InstanceTrustReport
 func Verify(manifest interface{}, flavor interface{}, flavorSigningCertPath string, skipFlavorSignatureVerification bool) (interface{}, error) {
 	var flavorPart string
+	var err error
+	flavorVal := flavor.(*flvr.SignedImageFlavor)
+	manifestVal, ok := manifest.(*instance.Manifest)
+	if !ok {
+		return nil, errors.New("supplied manifest is not an instance Manifest")
+	}
+
+	// input validation for manifest
+	if err = validation.ValidateUUIDv4(manifestVal.InstanceInfo.InstanceID); err != nil {
+		return nil, errors.New("Invalid input : VmID must be a valid UUID")
+	}
+
+	if err = validation.ValidateHardwareUUID(manifestVal.InstanceInfo.HostHardwareUUID); err != nil {
+		return nil, errors.New("Invalid input : Host hardware UUID must be valid")
+	}
+
+	if err = validation.ValidateUUIDv4(manifestVal.InstanceInfo.InstanceID); err != nil {
+		return nil, errors.New("Invalid input : ImageID must be a valid UUID")
+	}
+
+	//input validation for flavor
+	if err = validation.ValidateUUIDv4(flavorVal.ImageFlavor.Meta.ID); err != nil {
+		return nil, errors.New("Invalid input : FlavorID must be a valid UUID")
+	}
+
+	if !isValidFlavorPart(flavorVal.ImageFlavor.Meta.Description.FlavorPart) {
+		return nil, errors.New("Invalid input :flavor part must be IMAGE or CONTAINER_IMAGE")
+	}
+
+	if(flavorVal.ImageFlavor.Encryption != nil && flavorVal.ImageFlavor.Encryption.KeyURL != "") {
+		uriValue, _ := url.Parse(flavorVal.ImageFlavor.Encryption.KeyURL)
+		protocol := make(map[string]byte)
+		protocol["https"] = 0
+		if validateURLErr := validation.ValidateURL(flavorVal.ImageFlavor.Encryption.KeyURL, protocol, uriValue.RequestURI()); validateURLErr != nil {
+			return nil, errors.New("Invalid key URL format")
+		}
+
+		if validateDigestErr := validation.ValidateBase64String(flavorVal.ImageFlavor.Encryption.Digest); validateDigestErr != nil {
+			return nil, errors.New("Invalid base64 string for the digest")
+		}
+	}
+
 	switch flavor := flavor.(type) {
 	case *flvr.SignedImageFlavor:
 		// assert manifest as VM Manifest
 		flavorPart = flavor.ImageFlavor.Meta.Description.FlavorPart
-		manifest, ok := manifest.(*instance.Manifest)
-		if flavorPart == "IMAGE" && ok {
-			return VerifyVM(manifest, flavor, flavorSigningCertPath, skipFlavorSignatureVerification)
+		if flavorPart == "IMAGE" {
+			return VerifyVM(manifestVal, flavor, flavorSigningCertPath, skipFlavorSignatureVerification)
+		} else if flavorPart == "CONTAINER_IMAGE" {
+			return VerifyContainer(manifestVal, flavor, flavorSigningCertPath, skipFlavorSignatureVerification)
+		} else {
+			return nil, errors.New("unrecognized flavor type")
 		}
-		if flavorPart == "CONTAINER_IMAGE" && ok {
-			return VerifyContainer(manifest, flavor, flavorSigningCertPath, skipFlavorSignatureVerification)
-		}
-		return nil, errors.New("supplied manifest is not an instance Manifest")
 	default:
 		return nil, errors.New("unrecognized flavor type")
 	}
@@ -87,4 +130,15 @@ func getTrustStatus(result []Result) bool {
 		isTrusted = isTrusted && element.Trusted
 	}
 	return isTrusted
+}
+
+//isValidFlavorPart method checks if the flavor part is of type OS , BIOS , COMBINED, ASSET_TAG, HOST_UNIQUE
+func isValidFlavorPart(flavor string) bool {
+	flavorPart := [...]string{"IMAGE", "CONTAINER_IMAGE"}
+	for _, a := range flavorPart {
+		if a == flavor {
+			return true
+		}
+	}
+	return false
 }

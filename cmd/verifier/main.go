@@ -8,9 +8,7 @@ import (
 	"intel/isecl/lib/flavor"
 	"intel/isecl/lib/verifier"
 	"io/ioutil"
-	"net/url"
 	"os"
-	"regexp"
 	"strconv"
 )
 
@@ -48,45 +46,6 @@ func verify(manifestPath, flavorPath, flavorSigningCertPath string, skipFlavorSi
 	err = json.Unmarshal(flavorData, &flv)
 	if err != nil {
 		fmt.Printf("Could not unmarshal jsonfile %s\n", flavorPath)
-		os.Exit(1)
-	}
-	//input validation for manifest
-	if err = validation.ValidateUUIDv4(manifest.InstanceInfo.InstanceID); err != nil {
-		fmt.Println("Invalid input : VmID must be a valid UUID")
-		os.Exit(1)
-	}
-
-	if err = validation.ValidateHardwareUUID(manifest.InstanceInfo.HostHardwareUUID); err != nil {
-		fmt.Println("Invalid input : Host hardware UUID must be valid")
-		os.Exit(1)
-	}
-
-	if err = validation.ValidateUUIDv4(manifest.InstanceInfo.InstanceID); err != nil {
-		fmt.Println("Invalid input : ImageID must be a valid UUID")
-		os.Exit(1)
-	}
-
-	//input validation for flavor
-	if err = validation.ValidateUUIDv4(flv.Image.Meta.ID); err != nil {
-		fmt.Println("Invalid input : FlavorID must be a valid UUID")
-		os.Exit(1)
-	}
-
-	if !isValidFlavorPart(flv.Image.Meta.Description.FlavorPart) {
-		fmt.Println("Invalid input :flavor part must be IMAGE or CONTAINER_IMAGE")
-		os.Exit(1)
-	}
-
-	uriValue, _ := url.Parse(flv.Image.Encryption.KeyURL)
-	protocol := make(map[string]byte)
-	protocol["https"] = 0
-	if validateURLErr := validation.ValidateURL(flv.Image.Encryption.KeyURL, protocol, uriValue.RequestURI()); validateURLErr != nil {
-		fmt.Printf("Invalid key URL format: %s\n", validateURLErr.Error())
-		os.Exit(1)
-	}
-
-	if validateDigestErr := validation.ValidateBase64String(flv.Image.Encryption.Digest); validateDigestErr != nil {
-		fmt.Printf("Invalid digest: %s\n", validateDigestErr.Error())
 		os.Exit(1)
 	}
 
@@ -134,21 +93,4 @@ func main() {
 	default:
 		printUsage()
 	}
-}
-
-//isValidDigest method checks if the digest value is hexadecimal and 64 characters in length
-func isValidDigest(value string) bool {
-	r := regexp.MustCompile("^[a-fA-F0-9]{64}$")
-	return r.MatchString(value)
-}
-
-//isValidFlavorPart method checks if the flavor part is of type OS , BIOS , COMBINED, ASSET_TAG, HOST_UNIQUE
-func isValidFlavorPart(flavor string) bool {
-	flavorPart := [...]string{"IMAGE", "CONTAINER_IMAGE"}
-	for _, a := range flavorPart {
-		if a == flavor {
-			return true
-		}
-	}
-	return false
 }

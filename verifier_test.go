@@ -16,7 +16,7 @@ func TestVerify(t *testing.T) {
 	var signedFlavor flvr.SignedImageFlavor
 	currDir, _ := os.Getwd()
 	flavor, err := flavor.GetImageFlavor("Cirros-enc", true,
-		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
+		"https://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "fChs4vXGYJ6hUHCILkLNg1STbF3YC270tVb3pUP9AfA=")
 	assert.NoError(t, err)
 	flavorBytes, _ := json.Marshal(flavor)
 	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir + "/test/flavor-signing-key.pem")
@@ -38,7 +38,7 @@ func TestJSON(t *testing.T) {
 	var signedFlavor flvr.SignedImageFlavor
 	currDir, _ := os.Getwd()
 	flavor, err := flavor.GetImageFlavor("Cirros-enc", true,
-		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
+		"https://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "fChs4vXGYJ6hUHCILkLNg1STbF3YC270tVb3pUP9AfA=")
 	assert.NoError(t, err)
 	flavorBytes, _ := json.Marshal(flavor)
 	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir + "/test/flavor-signing-key.pem")
@@ -48,17 +48,16 @@ func TestJSON(t *testing.T) {
 	report, err := Verify(&manifest, &signedFlavor, currDir + "/test/flavor-signing-cert.pem", false)
 	reportJSON, _ := json.Marshal(report)
 	t.Log(string(reportJSON))
-	var r InstanceTrustReport
-	err = json.Unmarshal(reportJSON, &r)
-	assert.NoError(t, err)
-	assert.True(t, r.Results[0].Trusted)
+	trustReport, ok := report.(*InstanceTrustReport)
+	assert.True(t, ok)
+	assert.True(t, trustReport.Trusted)
 }
 
 func TestVerifyWithFault(t *testing.T) {
 	var signedFlavor flvr.SignedImageFlavor
 	currDir, _ := os.Getwd()
 	flavor, err := flavor.GetImageFlavor("Cirros-enc", true,
-		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
+		"https://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "fChs4vXGYJ6hUHCILkLNg1STbF3YC270tVb3pUP9AfA=")
 	assert.NoError(t, err)
 	flavorBytes, _ := json.Marshal(flavor)
 	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir + "/test/flavor-signing-key.pem")
@@ -77,7 +76,7 @@ func TestVerifyWithConverseFault(t *testing.T) {
 	var signedFlavor flvr.SignedImageFlavor
 	currDir, _ := os.Getwd()
 	flavor, err := flavor.GetImageFlavor("Cirros-enc", false,
-		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "261209df1789073192285e4e408addadb35068421ef4890a5d4d434")
+		"https://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "fChs4vXGYJ6hUHCILkLNg1STbF3YC270tVb3pUP9AfA=")
 	assert.NoError(t, err)
 	flavorBytes, _ := json.Marshal(flavor)
 	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir + "/test/flavor-signing-key.pem")

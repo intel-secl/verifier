@@ -17,7 +17,7 @@ func TestVerifyContainer(t *testing.T) {
 	var signedFlavor flvr.SignedImageFlavor
 	currDir, _ := os.Getwd()
 	flavor, err := flavor.GetContainerImageFlavor("Hello-World:latest", true,
-		"http://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", true, "https://notary.docker.io")
+		"https://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", true, "https://notary.docker.io")
 	assert.NoError(t, err)
 	flavorBytes, _ := json.Marshal(flavor)
 	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir + "/test/flavor-signing-key.pem")
