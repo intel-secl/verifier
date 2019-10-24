@@ -7,8 +7,8 @@ package verifier
 import (
 	"errors"
 	"intel/isecl/lib/common/pkg/instance"
-	flvr "intel/isecl/lib/flavor"
 	"intel/isecl/lib/common/validation"
+	flvr "intel/isecl/lib/flavor"
 	"net/url"
 )
 
@@ -21,7 +21,7 @@ import (
 // More types will be supported as the feature set is expanded in this library
 // Verify returns an interface{} which is a concrete type of any of the following:
 // - *InstanceTrustReport
-func Verify(manifest interface{}, flavor interface{}, flavorSigningCertPath string, skipFlavorSignatureVerification bool) (interface{}, error) {
+func Verify(manifest interface{}, flavor interface{}, flavorSigningCertDirPath, trustedCAsDirPath string, skipFlavorSignatureVerification bool) (interface{}, error) {
 	var flavorPart string
 	var err error
 	flavorVal := flavor.(*flvr.SignedImageFlavor)
@@ -52,7 +52,7 @@ func Verify(manifest interface{}, flavor interface{}, flavorSigningCertPath stri
 		return nil, errors.New("Invalid input :flavor part must be IMAGE or CONTAINER_IMAGE")
 	}
 
-	if(flavorVal.ImageFlavor.Encryption != nil && flavorVal.ImageFlavor.Encryption.KeyURL != "") {
+	if flavorVal.ImageFlavor.Encryption != nil && flavorVal.ImageFlavor.Encryption.KeyURL != "" {
 		uriValue, _ := url.Parse(flavorVal.ImageFlavor.Encryption.KeyURL)
 		protocol := make(map[string]byte)
 		protocol["https"] = 0
@@ -70,9 +70,9 @@ func Verify(manifest interface{}, flavor interface{}, flavorSigningCertPath stri
 		// assert manifest as VM Manifest
 		flavorPart = flavor.ImageFlavor.Meta.Description.FlavorPart
 		if flavorPart == "IMAGE" {
-			return VerifyVM(manifestVal, flavor, flavorSigningCertPath, skipFlavorSignatureVerification)
+			return VerifyVM(manifestVal, flavor, flavorSigningCertDirPath, trustedCAsDirPath, skipFlavorSignatureVerification)
 		} else if flavorPart == "CONTAINER_IMAGE" {
-			return VerifyContainer(manifestVal, flavor, flavorSigningCertPath, skipFlavorSignatureVerification)
+			return VerifyContainer(manifestVal, flavor, flavorSigningCertDirPath, trustedCAsDirPath, skipFlavorSignatureVerification)
 		} else {
 			return nil, errors.New("unrecognized flavor type")
 		}
@@ -82,7 +82,7 @@ func Verify(manifest interface{}, flavor interface{}, flavorSigningCertPath stri
 }
 
 // VerifyVM explicity verifies a VM Manifest against a VM ImageFlavor, and returns a VMTrustReport
-func VerifyVM(manifest *instance.Manifest, flavor *flvr.SignedImageFlavor, flavorSigningCertPath string, skipFlavorSignatureVerification bool) (*InstanceTrustReport, error) {
+func VerifyVM(manifest *instance.Manifest, flavor *flvr.SignedImageFlavor, flavorSigningCertsDir, trustedCAsDir string, skipFlavorSignatureVerification bool) (*InstanceTrustReport, error) {
 	var result []Result
 
 	r := newEncryptionMatches("IMAGE", flavor.ImageFlavor.EncryptionRequired)
@@ -90,7 +90,7 @@ func VerifyVM(manifest *instance.Manifest, flavor *flvr.SignedImageFlavor, flavo
 	result = append(result, Result{Rule: r, FlavorID: flavor.ImageFlavor.Meta.ID, Faults: faults, Trusted: trust})
 
 	if !skipFlavorSignatureVerification {
-		flavorIntegrityRule := newFlavorIntegrityMatches(flavorSigningCertPath)
+		flavorIntegrityRule := newFlavorIntegrityMatches(flavorSigningCertsDir, trustedCAsDir)
 		trust, faults = flavorIntegrityRule.apply(*flavor)
 		result = append(result, Result{Rule: flavorIntegrityRule, FlavorID: flavor.ImageFlavor.Meta.ID, Faults: faults, Trusted: trust})
 	}
@@ -101,7 +101,7 @@ func VerifyVM(manifest *instance.Manifest, flavor *flvr.SignedImageFlavor, flavo
 }
 
 // VerifyContainer explicity verifies a Container Manifest against a Container ImageFlavor, and returns a ContainerTrustReport
-func VerifyContainer(manifest *instance.Manifest, flavor *flvr.SignedImageFlavor, flavorSigningCertPath string, skipFlavorSignatureVerification bool) (*InstanceTrustReport, error) {
+func VerifyContainer(manifest *instance.Manifest, flavor *flvr.SignedImageFlavor, flavorSigningCertsDir, trustedCAsDir string, skipFlavorSignatureVerification bool) (*InstanceTrustReport, error) {
 	var result []Result
 
 	encryptionRule := newEncryptionMatches("CONTAINER_IMAGE", flavor.ImageFlavor.EncryptionRequired)
@@ -113,7 +113,7 @@ func VerifyContainer(manifest *instance.Manifest, flavor *flvr.SignedImageFlavor
 	result = append(result, Result{Rule: integrityRule, FlavorID: flavor.ImageFlavor.Meta.ID, Faults: faults, Trusted: trust})
 
 	if !skipFlavorSignatureVerification {
-		flavorIntegrityRule := newFlavorIntegrityMatches(flavorSigningCertPath)
+		flavorIntegrityRule := newFlavorIntegrityMatches(flavorSigningCertsDir, trustedCAsDir)
 		trust, faults = flavorIntegrityRule.apply(*flavor)
 		result = append(result, Result{Rule: flavorIntegrityRule, FlavorID: flavor.ImageFlavor.Meta.ID, Faults: faults, Trusted: trust})
 	}

@@ -7,6 +7,6 @@ require (
 	intel/isecl/lib/flavor v0.0.0
 )
 
-replace intel/isecl/lib/flavor => github.com/intel-secl/flavor v1.6-beta
+replace intel/isecl/lib/common => gitlab.devtools.intel.com/sst/isecl/lib/common.git v0.0.0-20191021091828-a7ff2a0b747b
 
-replace intel/isecl/lib/common => github.com/intel-secl/common v1.6-beta
+replace intel/isecl/lib/flavor => gitlab.devtools.intel.com/sst/isecl/lib/flavor.git v0.0.0-20190915015315-7d9923b58ff3

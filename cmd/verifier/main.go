@@ -22,7 +22,7 @@ func printUsage() {
 	fmt.Println("\tOutput: <Trust Report Json>")
 }
 
-func verify(manifestPath, flavorPath, flavorSigningCertPath string, skipFlavorSignatureVerification bool) {
+func verify(manifestPath, flavorPath, flavorSigningCertsDir, trustedCAsDir string, skipFlavorSignatureVerification bool) {
 	inputArr := []string{manifestPath, flavorPath}
 	if validateInputErr := validation.ValidateStrings(inputArr); validateInputErr != nil {
 		fmt.Println("Invalid string format")
@@ -53,7 +53,7 @@ func verify(manifestPath, flavorPath, flavorSigningCertPath string, skipFlavorSi
 		os.Exit(1)
 	}
 
-	trustreport, err := verifier.Verify(&manifest, &flv, flavorSigningCertPath, skipFlavorSignatureVerification)
+	trustreport, err := verifier.Verify(&manifest, &flv, flavorSigningCertsDir, trustedCAsDir, skipFlavorSignatureVerification)
 	if err != nil {
 		fmt.Printf("Flavor verification encountered a runtime error: %s", err.Error())
 		os.Exit(1)
@@ -81,17 +81,17 @@ func main() {
 	switch cmd := args[0]; cmd {
 	case "Verify":
 		param := args[1:]
-		if len(param) != 4 {
+		if len(param) != 5 {
 			printUsage()
 		} else {
-			if param[3] != "true" && param[3] != "false"{
+			if param[4] != "true" && param[4] != "false"{
 				printUsage()
 			}
-			flavorSignatureVerificationSkip, err := strconv.ParseBool(param[3])
+			flavorSignatureVerificationSkip, err := strconv.ParseBool(param[4])
 			if err != nil {
 				printUsage()
 			} else {
-				verify(param[0], param[1], param[2], flavorSignatureVerificationSkip)
+				verify(param[0], param[1], param[2], param[3], flavorSignatureVerificationSkip)
 			}
 		}
 	default:

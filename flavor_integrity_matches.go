@@ -11,10 +11,11 @@ import (
 
 // FlavorIntegrityMatches is a rule that enforces flavor integrity policy
 type FlavorIntegrityMatches struct {
-	RuleName        string                  `json:"rule_name"`
-	Markers         []string                `json:"markers"`
-	FlavorIntegrity ExpectedFlavorIntegrity `json:"expected"`
-	FlavorCertPath  string                  `json:"-"`
+	RuleName              string                  `json:"rule_name"`
+	Markers               []string                `json:"markers"`
+	FlavorIntegrity       ExpectedFlavorIntegrity `json:"expected"`
+	FlavorSigningCertsDir string                  `json:"-"`
+	TrustedCAsDir         string                  `json:"-"`
 }
 
 // ExpectedFlavorIntegrity is a data template that defines the json tag name of the integrity requirement, and the expected boolean value
@@ -26,7 +27,7 @@ type ExpectedFlavorIntegrity struct {
 //FlavorIntegrityMatchesName contains the name of the rule for flavor signature verification
 const FlavorIntegrityMatchesName = "FlavorIntegrityMatches"
 
-func newFlavorIntegrityMatches(flavorCertPath string) *FlavorIntegrityMatches {
+func newFlavorIntegrityMatches(flavorSigningCertsDir, trustedCAsDir string) *FlavorIntegrityMatches {
 	return &FlavorIntegrityMatches{
 		FlavorIntegrityMatchesName,
 		[]string{"flavorIntegrity"},
@@ -34,7 +35,8 @@ func newFlavorIntegrityMatches(flavorCertPath string) *FlavorIntegrityMatches {
 			"flavor_trusted",
 			true,
 		},
-		flavorCertPath,
+		flavorSigningCertsDir,
+		trustedCAsDir,
 	}
 }
 
@@ -45,7 +47,7 @@ func (em *FlavorIntegrityMatches) Name() string {
 
 func (em *FlavorIntegrityMatches) apply(flavor interface{}) (bool, []Fault) {
 	// verify if flavor is trusted
-	flavorTrusted := verifierUtil.VerifyFlavorIntegrity(flavor.(flvr.SignedImageFlavor), em.FlavorCertPath)
+	flavorTrusted := verifierUtil.VerifyFlavorIntegrity(flavor.(flvr.SignedImageFlavor), em.FlavorSigningCertsDir, em.TrustedCAsDir)
 
 	// if rule expects integrity_enforced to be true
 	if flavorTrusted {
