@@ -12,16 +12,16 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	cos "intel/isecl/lib/common/os"
 	"intel/isecl/lib/common/crypt"
+	cos "intel/isecl/lib/common/os"
 	flvr "intel/isecl/lib/flavor"
 
-	log "github.com/sirupsen/logrus"
-
+	clog "intel/isecl/lib/common/log"
 )
 
+var log = clog.GetDefaultLogger()
 
-func verifyFlavorSignatureWithCertChainVerification(flavor flvr.SignedImageFlavor, certPemSlice, rootCAPems [][]byte) bool{
+func verifyFlavorSignatureWithCertChainVerification(flavor flvr.SignedImageFlavor, certPemSlice, rootCAPems [][]byte) bool {
 	// build the trust root CAs first
 	var imageFlavor flvr.ImageFlavor
 	roots := x509.NewCertPool()
@@ -33,7 +33,6 @@ func verifyFlavorSignatureWithCertChainVerification(flavor flvr.SignedImageFlavo
 		Roots: roots,
 	}
 
-
 	for _, certPem := range certPemSlice {
 		var cert *x509.Certificate
 		var err error
@@ -44,40 +43,40 @@ func verifyFlavorSignatureWithCertChainVerification(flavor flvr.SignedImageFlavo
 		}
 
 		if !(cert.IsCA && cert.BasicConstraintsValid) {
-			if _, err := cert.Verify(verifyRootCAOpts); err != nil  {
+			if _, err := cert.Verify(verifyRootCAOpts); err != nil {
 				log.Errorf("verifier/util/util:VerifyCertificateSignature() Error while verifying certificate chain: %s", err.Error())
 				continue
 			}
 		}
-	        
+
 		pubKey, err := crypt.GetPublicKeyFromCert(cert)
-        	if err != nil {
+		if err != nil {
 			log.Errorf("verifier/util/util:VerifyCertificateSignature() Unable to retrieve public key from certificate: %s", err.Error())
-                	continue
-        	}
-        	
+			continue
+		}
+
 		rsaPublicKey := pubKey.(*rsa.PublicKey)
-	        imageFlavor.Image = flavor.ImageFlavor
-        	h := sha512.New384()
-	        flavorBytes, err := json.Marshal(imageFlavor)
-        	if err != nil {
-                	log.Errorf("verifier/util/util:VerifyCertificateSignature() Error marshalling flavor interface to bytes: %s", err.Error())
-	                continue
-        	}
-	        h.Write(flavorBytes)
-        	digest := h.Sum(nil)
+		imageFlavor.Image = flavor.ImageFlavor
+		h := sha512.New384()
+		flavorBytes, err := json.Marshal(imageFlavor)
+		if err != nil {
+			log.Errorf("verifier/util/util:VerifyCertificateSignature() Error marshalling flavor interface to bytes: %s", err.Error())
+			continue
+		}
+		h.Write(flavorBytes)
+		digest := h.Sum(nil)
 
-	        signatureBytes, err := base64.StdEncoding.DecodeString(flavor.Signature)
-        	if err != nil {
-                	log.Errorf("verifier/util/util:VerifyCertificateSignature() Error decoding signature to bytes %s", err.Error())
-	                continue
-        	}
+		signatureBytes, err := base64.StdEncoding.DecodeString(flavor.Signature)
+		if err != nil {
+			log.Errorf("verifier/util/util:VerifyCertificateSignature() Error decoding signature to bytes %s", err.Error())
+			continue
+		}
 
-	        err = rsa.VerifyPKCS1v15(rsaPublicKey, crypto.SHA384, digest, signatureBytes)
-        	if err != nil {
-                	log.Errorf("verifier/util/util:VerifyCertificateSignature() Could not verify flavor: `%s`", err.Error())
-	                continue
-	        }
+		err = rsa.VerifyPKCS1v15(rsaPublicKey, crypto.SHA384, digest, signatureBytes)
+		if err != nil {
+			log.Errorf("verifier/util/util:VerifyCertificateSignature() Could not verify flavor: `%s`", err.Error())
+			continue
+		}
 		log.Info("verifier/util/util:VerifyCertificateSignature() Succesfully verified the flavor signature")
 		return true
 	}
@@ -85,35 +84,35 @@ func verifyFlavorSignatureWithCertChainVerification(flavor flvr.SignedImageFlavo
 	return false
 }
 
-func getCertificate(signingCertPems interface{}) ([][]byte, error){
+func getCertificate(signingCertPems interface{}) ([][]byte, error) {
 	var certPemSlice [][]byte
 
-        switch signingCertPems.(type) {
-        case nil:
-                return nil, errors.New("Empty ")
-        case [][]byte:
-                certPemSlice = signingCertPems.([][]byte)
-        case []byte:
-                certPemSlice = [][]byte{signingCertPems.([]byte)}
-        default:
-                log.Errorf("signingCertPems has to be of type []byte or [][]byte")
-                return nil, errors.New("signingCertPems has to be of type []byte or [][]byte")
+	switch signingCertPems.(type) {
+	case nil:
+		return nil, errors.New("Empty ")
+	case [][]byte:
+		certPemSlice = signingCertPems.([][]byte)
+	case []byte:
+		certPemSlice = [][]byte{signingCertPems.([]byte)}
+	default:
+		log.Errorf("signingCertPems has to be of type []byte or [][]byte")
+		return nil, errors.New("signingCertPems has to be of type []byte or [][]byte")
 
-        }
+	}
 	return certPemSlice, nil
 }
 
 //VerifyFlavorIntegrity is used to verify the integrity of the flavor
 func VerifyFlavorIntegrity(flavor flvr.SignedImageFlavor, signingCertsDir, trustedCAsDir string) bool {
 
-	signingCertPems, err := cos.GetDirFileContents(signingCertsDir, "*.pem" )
-	if err != nil{
+	signingCertPems, err := cos.GetDirFileContents(signingCertsDir, "*.pem")
+	if err != nil {
 		log.Errorf("verifier/util:VerifyFlavorIntegrity() Error while reading certificates from dir: %s", signingCertsDir)
 		return false
 	}
-	
-	rootPems, err := cos.GetDirFileContents(trustedCAsDir, "*.pem" )
-	if err != nil{
+
+	rootPems, err := cos.GetDirFileContents(trustedCAsDir, "*.pem")
+	if err != nil {
 		log.Errorf("verifier/util:VerifyFlavorIntegrity() Error while reading certificates from dir: %s", trustedCAsDir)
 		return false
 	}
@@ -125,11 +124,9 @@ func VerifyFlavorIntegrity(flavor flvr.SignedImageFlavor, signingCertsDir, trust
 		return false
 	}
 
-	if !verifyFlavorSignatureWithCertChainVerification(flavor, certPemSlice, rootPems){
+	if !verifyFlavorSignatureWithCertChainVerification(flavor, certPemSlice, rootPems) {
 		return false
 	}
-	log.Info("verifier/util/util:VerifyFlavorIntegrity() Flavor integrity verified succesfully returing true")		
+	log.Info("verifier/util/util:VerifyFlavorIntegrity() Flavor integrity verified succesfully returing true")
 	return true
 }
-
-

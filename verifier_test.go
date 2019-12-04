@@ -6,11 +6,11 @@ package verifier
 
 import (
 	"encoding/json"
+	"intel/isecl/lib/common/pkg/instance"
+	"intel/isecl/lib/flavor"
 	flvr "intel/isecl/lib/flavor"
 	flavorUtil "intel/isecl/lib/flavor/util"
 	"os"
-	"intel/isecl/lib/common/pkg/instance"
-	"intel/isecl/lib/flavor"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,11 +23,11 @@ func TestVerify(t *testing.T) {
 		"https://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "fChs4vXGYJ6hUHCILkLNg1STbF3YC270tVb3pUP9AfA=")
 	assert.NoError(t, err)
 	flavorBytes, _ := json.Marshal(flavor)
-	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir + "/test/flavor-signing-key.pem")
+	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir+"/test/flavor-signing-key.pem")
 	assert.NoError(t, err)
 	manifest := instance.Manifest{InstanceInfo: instance.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: true}
 	json.Unmarshal([]byte(signedFlavorString), &signedFlavor)
-	report, err := Verify(&manifest, &signedFlavor, currDir + "/test/flavor-signing-cert.pem", false)
+	report, err := Verify(&manifest, &signedFlavor, currDir+"/test/flavor-signing-cert.pem", currDir+"/test/cacerts/", false)
 	assert.NoError(t, err)
 	assert.NotNil(t, report)
 	trustReport, ok := report.(*InstanceTrustReport)
@@ -45,11 +45,11 @@ func TestJSON(t *testing.T) {
 		"https://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "fChs4vXGYJ6hUHCILkLNg1STbF3YC270tVb3pUP9AfA=")
 	assert.NoError(t, err)
 	flavorBytes, _ := json.Marshal(flavor)
-	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir + "/test/flavor-signing-key.pem")
+	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir+"/test/flavor-signing-key.pem")
 	assert.NoError(t, err)
 	manifest := instance.Manifest{InstanceInfo: instance.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: true}
 	json.Unmarshal([]byte(signedFlavorString), &signedFlavor)
-	report, err := Verify(&manifest, &signedFlavor, currDir + "/test/flavor-signing-cert.pem", false)
+	report, err := Verify(&manifest, &signedFlavor, currDir+"/test/flavor-signing-cert.pem", currDir+"/test/cacerts/", false)
 	reportJSON, _ := json.Marshal(report)
 	t.Log(string(reportJSON))
 	trustReport, ok := report.(*InstanceTrustReport)
@@ -64,11 +64,11 @@ func TestVerifyWithFault(t *testing.T) {
 		"https://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "fChs4vXGYJ6hUHCILkLNg1STbF3YC270tVb3pUP9AfA=")
 	assert.NoError(t, err)
 	flavorBytes, _ := json.Marshal(flavor)
-	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir + "/test/flavor-signing-key.pem")
+	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir+"/test/flavor-signing-key.pem")
 	assert.NoError(t, err)
 	manifest := instance.Manifest{InstanceInfo: instance.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: false}
 	json.Unmarshal([]byte(signedFlavorString), &signedFlavor)
-	report, err := Verify(&manifest, &signedFlavor, currDir + "/test/flavor-signing-cert.pem", false)
+	report, err := Verify(&manifest, &signedFlavor, currDir+"/test/flavor-signing-cert.pem", currDir+"/test/cacerts/", false)
 	assert.NoError(t, err)
 	assert.NotNil(t, report)
 	trustReport, ok := report.(*InstanceTrustReport)
@@ -83,11 +83,11 @@ func TestVerifyWithConverseFault(t *testing.T) {
 		"https://10.1.68.21:20080/v1/keys/73755fda-c910-46be-821f-e8ddeab189e9/transfer", "fChs4vXGYJ6hUHCILkLNg1STbF3YC270tVb3pUP9AfA=")
 	assert.NoError(t, err)
 	flavorBytes, _ := json.Marshal(flavor)
-	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir + "/test/flavor-signing-key.pem")
+	signedFlavorString, err := flavorUtil.GetSignedFlavor(string(flavorBytes), currDir+"/test/flavor-signing-key.pem")
 	assert.NoError(t, err)
 	manifest := instance.Manifest{InstanceInfo: instance.Info{InstanceID: "7B280921-83F7-4F44-9F8D-2DCF36E7AF33", HostHardwareUUID: "59EED8F0-28C5-4070-91FC-F5E2E5443F6B", ImageID: "670F263E-B34E-4E07-A520-40AC9A89F62D"}, ImageEncrypted: true}
 	json.Unmarshal([]byte(signedFlavorString), &signedFlavor)
-	report, err := Verify(&manifest, &signedFlavor, currDir + "/test/flavor-signing-cert.pem", false)
+	report, err := Verify(&manifest, &signedFlavor, currDir+"/test/flavor-signing-cert.pem", currDir+"/test/cacerts/", false)
 	assert.NoError(t, err)
 	assert.NotNil(t, report)
 	trustReport, ok := report.(*InstanceTrustReport)
