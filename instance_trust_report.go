@@ -5,7 +5,7 @@
 package verifier
 
 import (
-	"intel/isecl/lib/common/pkg/instance"
+	"intel/isecl/lib/common/v2/pkg/instance"
 )
 
 // ImageTrustReport is a record that indicates trust status of an image

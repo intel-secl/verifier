@@ -12,11 +12,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"intel/isecl/lib/common/crypt"
-	cos "intel/isecl/lib/common/os"
-	flvr "intel/isecl/lib/flavor"
+	"intel/isecl/lib/common/v2/crypt"
+	cos "intel/isecl/lib/common/v2/os"
+	flvr "intel/isecl/lib/flavor/v2"
 
-	clog "intel/isecl/lib/common/log"
+	clog "intel/isecl/lib/common/v2/log"
 )
 
 var log = clog.GetDefaultLogger()

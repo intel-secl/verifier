@@ -6,7 +6,7 @@ package verifier
 
 import (
 	"errors"
-	"intel/isecl/lib/common/pkg/instance"
+	"intel/isecl/lib/common/v2/pkg/instance"
 )
 
 // IntegrityMatches is a rule that enforces container integrity policy

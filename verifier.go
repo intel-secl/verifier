@@ -6,9 +6,9 @@ package verifier
 
 import (
 	"errors"
-	"intel/isecl/lib/common/pkg/instance"
-	"intel/isecl/lib/common/validation"
-	flvr "intel/isecl/lib/flavor"
+	"intel/isecl/lib/common/v2/pkg/instance"
+	"intel/isecl/lib/common/v2/validation"
+	flvr "intel/isecl/lib/flavor/v2"
 	"net/url"
 )
 

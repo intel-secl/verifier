@@ -6,10 +6,10 @@ package verifier
 
 import (
 	"encoding/json"
-	"intel/isecl/lib/common/pkg/instance"
-	"intel/isecl/lib/flavor"
-	flvr "intel/isecl/lib/flavor"
-	flavorUtil "intel/isecl/lib/flavor/util"
+	"intel/isecl/lib/common/v2/pkg/instance"
+	"intel/isecl/lib/flavor/v2"
+	flvr "intel/isecl/lib/flavor/v2"
+	flavorUtil "intel/isecl/lib/flavor/v2/util"
 	"os"
 	"testing"
 

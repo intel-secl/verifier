@@ -5,8 +5,8 @@
 package verifier
 
 import (
-	flvr "intel/isecl/lib/flavor"
-	verifierUtil "intel/isecl/lib/verifier/util"
+	flvr "intel/isecl/lib/flavor/v2"
+	verifierUtil "intel/isecl/lib/verifier/v2/util"
 )
 
 // FlavorIntegrityMatches is a rule that enforces flavor integrity policy
