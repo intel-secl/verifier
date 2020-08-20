@@ -6,7 +6,7 @@ package verifier
 
 import (
 	"errors"
-	"intel/isecl/lib/common/v2/pkg/instance"
+	"intel/isecl/lib/common/v3/pkg/instance"
 )
 
 // EncryptionMatches is a rule that enforces image encryption policy
