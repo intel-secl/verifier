@@ -4,10 +4,10 @@ require (
 	github.com/intel-secl/intel-secl/v3 v3.0.0
 	github.com/sirupsen/logrus v1.4.0
 	github.com/stretchr/testify v1.3.0
-	intel/isecl/lib/common/v3 v3.0.0
-	intel/isecl/lib/flavor/v3 v3.3.0
+	intel/isecl/lib/common/v3 v3.1.0
+	intel/isecl/lib/flavor/v3 v3.1.0
 )
 
-replace intel/isecl/lib/common/v3 => github.com/intel-secl/common/v3 v3.0.0
+replace intel/isecl/lib/common/v3 => github.com/intel-secl/common/v3 v3.1.0
 
-replace intel/isecl/lib/flavor/v3 => github.com/intel-secl/flavor/v3 v3.0.0
+replace intel/isecl/lib/flavor/v3 => github.com/intel-secl/flavor/v3 v3.1.0
