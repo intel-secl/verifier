@@ -63,7 +63,12 @@ func verifyFlavorSignatureWithCertChainVerification(flavor flvr.SignedImageFlavo
 			log.Errorf("verifier/util/util:VerifyCertificateSignature() Error marshalling flavor interface to bytes: %s", err.Error())
 			continue
 		}
-		h.Write(flavorBytes)
+		_, err = h.Write(flavorBytes)
+		if err != nil {
+			log.Errorf("verifier/util/util:VerifyCertificateSignature() Error writing flavor bytes: %s", err.Error())
+			continue
+		}
+
 		digest := h.Sum(nil)
 
 		signatureBytes, err := base64.StdEncoding.DecodeString(flavor.Signature)
