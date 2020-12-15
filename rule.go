@@ -67,7 +67,7 @@ func (r *Result) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	// faults is optional
-	if _, ok := raw["faults"]; ok{
+	if _, ok := raw["faults"]; ok {
 		err := json.Unmarshal(raw["faults"], &r.Faults)
 		if err != nil {
 			return err

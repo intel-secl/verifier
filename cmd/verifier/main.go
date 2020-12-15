@@ -84,7 +84,7 @@ func main() {
 		if len(param) != 5 {
 			printUsage()
 		} else {
-			if param[4] != "true" && param[4] != "false"{
+			if param[4] != "true" && param[4] != "false" {
 				printUsage()
 			}
 			flavorSignatureVerificationSkip, err := strconv.ParseBool(param[4])
