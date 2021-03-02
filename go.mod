@@ -13,3 +13,4 @@ replace intel/isecl/lib/common/v3 => gitlab.devtools.intel.com/sst/isecl/lib/com
 replace intel/isecl/lib/flavor/v3 => gitlab.devtools.intel.com/sst/isecl/lib/flavor.git/v3 v3.5/develop
 
 replace github.com/intel-secl/intel-secl/v3 => gitlab.devtools.intel.com/sst/isecl/intel-secl.git/v3 v3.5/develop
+
