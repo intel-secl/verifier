@@ -6,9 +6,9 @@ package verifier
 
 import (
 	"errors"
-	flvr "github.com/intel-secl/intel-secl/v3/pkg/model/wls"
-	"intel/isecl/lib/common/v3/pkg/instance"
-	"intel/isecl/lib/common/v3/validation"
+	flvr "github.com/intel-secl/intel-secl/v4/pkg/model/wls"
+	"intel/isecl/lib/common/v4/pkg/instance"
+	"intel/isecl/lib/common/v4/validation"
 	"net/url"
 )
 

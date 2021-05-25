@@ -5,8 +5,8 @@
 package verifier
 
 import (
-	flvr "github.com/intel-secl/intel-secl/v3/pkg/model/wls"
-	verifierUtil "intel/isecl/lib/verifier/v3/util"
+	flvr "github.com/intel-secl/intel-secl/v4/pkg/model/wls"
+	verifierUtil "intel/isecl/lib/verifier/v4/util"
 )
 
 // FlavorIntegrityMatches is a rule that enforces flavor integrity policy
