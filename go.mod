@@ -8,8 +8,6 @@ require (
 	intel/isecl/lib/flavor/v4 v4.0.0
 )
 
-replace intel/isecl/lib/common/v4 => gitlab.devtools.intel.com/sst/isecl/lib/common.git/v4 v4.0/develop
+replace intel/isecl/lib/common/v4 => github.com/intel-secl/common/v4 v4.0.0
 
-replace intel/isecl/lib/flavor/v4 => gitlab.devtools.intel.com/sst/isecl/lib/flavor.git/v4 v4.0/develop
-
-replace github.com/intel-secl/intel-secl/v4 => gitlab.devtools.intel.com/sst/isecl/intel-secl.git/v4 v4.0/develop
+replace intel/isecl/lib/flavor/v4 => github.com/intel-secl/flavor/v4 v4.0.0
