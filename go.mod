@@ -1,7 +1,7 @@
 module intel/isecl/lib/verifier/v4
 
 require (
-	github.com/intel-secl/intel-secl/v4 v4.2.0-Beta`
+	github.com/intel-secl/intel-secl/v4 v4.2.0-Beta
 	github.com/sirupsen/logrus v1.4.0
 	github.com/stretchr/testify v1.6.1
 	intel/isecl/lib/common/v4 v4.2.0-Beta
